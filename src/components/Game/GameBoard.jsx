@@ -121,13 +121,28 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize, hintModeEnable
         }
       }
       // If drop is incorrect, don't update state - piece will return to original location automatically
+    } else if (draggedPiece.isPlaced) {
+      // If dropped outside board and piece was on the board, move it back to tray
+      const updatedPieces = updatePiecePosition(
+        puzzleData.pieces,
+        draggedPiece.id,
+        null // null position means move to tray
+      );
+
+      setPuzzleData({
+        ...puzzleData,
+        pieces: updatedPieces,
+      });
     }
-    // If dropped outside board, don't update state - piece returns to original location
+    // If dropped outside board and piece was in tray, don't update state - piece returns to tray
 
     // Clean up
     draggedPieceRef.current = null;
     isDraggingRef.current = false;
     originalPositionRef.current = null;
+
+    // Force re-render to clear floating piece and restore tray piece opacity
+    setDragPosition({ x: 0, y: 0 });
 
     // Remove listeners
     document.removeEventListener('mousemove', handleDragMove);
