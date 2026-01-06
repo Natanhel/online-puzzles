@@ -1,0 +1,38 @@
+.reset-button {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+  color: white;
+  border: 3px solid white;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1000;
+  font-family: inherit;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.reset-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.reset-button:active {
+  transform: scale(0.95);
+}
+
+/* Make button larger on small screens for easier tapping */
+@media (max-width: 768px) {
+  .reset-button {
+    top: 12px;
+    right: 12px;
+    padding: 14px 28px;
+    font-size: 20px;
+  }
+}

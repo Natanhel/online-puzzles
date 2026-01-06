@@ -226,20 +226,33 @@ class ImageService {
         GAME_CONFIG.IMAGE_PRELOAD_COUNT
       );
 
-      // Preload and cache the fresh images
-      const preloadedUrls = await this.preloadImages(
-        freshImages.map(img => img.url)
-      );
+      // Split local and remote images - local SVGs don't need preloading
+      const localImages = freshImages.filter(img => img.source === 'local');
+      const remoteImages = freshImages.filter(img => img.source !== 'local');
 
-      if (preloadedUrls.length > 0) {
-        // Filter to only successfully preloaded images
-        const successfulImages = freshImages.filter(img =>
-          preloadedUrls.includes(img.url)
+      // Add local images directly to cache (no preload needed for local SVGs)
+      if (localImages.length > 0) {
+        this.cache = [...this.cache, ...localImages];
+        await this.cacheImages(localImages);
+        console.log(`Added ${localImages.length} local images to cache`);
+      }
+
+      // Only preload remote images
+      if (remoteImages.length > 0) {
+        const preloadedUrls = await this.preloadImages(
+          remoteImages.map(img => img.url)
         );
 
-        this.cache = [...this.cache, ...successfulImages];
-        await this.cacheImages(successfulImages);
-        console.log(`Fetched and cached ${successfulImages.length} fresh images`);
+        if (preloadedUrls.length > 0) {
+          // Filter to only successfully preloaded images
+          const successfulImages = remoteImages.filter(img =>
+            preloadedUrls.includes(img.url)
+          );
+
+          this.cache = [...this.cache, ...successfulImages];
+          await this.cacheImages(successfulImages);
+          console.log(`Fetched and cached ${successfulImages.length} remote images`);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch fresh images during initialization:', error);
@@ -279,16 +292,31 @@ class ImageService {
   async fetchMoreImages() {
     try {
       const newImages = await this.fetchKidFriendlyImages(5);
-      const preloadedUrls = await this.preloadImages(newImages.map(img => img.url));
 
-      const successfulImages = newImages.filter(img =>
-        preloadedUrls.includes(img.url)
-      );
+      // Split local and remote images - local SVGs don't need preloading
+      const localImages = newImages.filter(img => img.source === 'local');
+      const remoteImages = newImages.filter(img => img.source !== 'local');
 
-      if (successfulImages.length > 0) {
-        this.cache = [...this.cache, ...successfulImages];
-        await this.cacheImages(successfulImages);
-        console.log(`Fetched ${successfulImages.length} additional images`);
+      // Add local images directly to cache
+      if (localImages.length > 0) {
+        this.cache = [...this.cache, ...localImages];
+        await this.cacheImages(localImages);
+        console.log(`Added ${localImages.length} additional local images`);
+      }
+
+      // Only preload remote images
+      if (remoteImages.length > 0) {
+        const preloadedUrls = await this.preloadImages(remoteImages.map(img => img.url));
+
+        const successfulImages = remoteImages.filter(img =>
+          preloadedUrls.includes(img.url)
+        );
+
+        if (successfulImages.length > 0) {
+          this.cache = [...this.cache, ...successfulImages];
+          await this.cacheImages(successfulImages);
+          console.log(`Fetched ${successfulImages.length} additional remote images`);
+        }
       }
     } catch (error) {
       console.error('Failed to fetch more images:', error);
@@ -318,6 +346,23 @@ class ImageService {
     } catch (error) {
       console.error('Failed to clear cache:', error);
     }
+  }
+
+  /**
+   * Reset to next image in cache (for game reset)
+   * @returns {Object|null} Next image object or null if cache is empty
+   */
+  resetToNextImage() {
+    if (this.cache.length === 0) {
+      console.warn('Cannot reset to next image: cache is empty');
+      return null;
+    }
+
+    // Move to next image in rotation
+    this.currentIndex++;
+    const nextImage = this.cache[this.currentIndex % this.cache.length];
+    console.log(`Reset to next image: ${nextImage.id}`);
+    return nextImage;
   }
 }
 

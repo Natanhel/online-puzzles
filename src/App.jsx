@@ -3,9 +3,11 @@ import GameBoard from './components/Game/GameBoard.jsx'
 import LoadingSpinner from './components/UI/LoadingSpinner.jsx'
 import CelebrationModal from './components/UI/CelebrationModal.jsx'
 import ProgressBar from './components/UI/ProgressBar.jsx'
+import ResetButton from './components/UI/ResetButton.jsx'
 import useImageApi from './hooks/useImageApi.js'
 import useResponsiveGrid from './hooks/useResponsiveGrid.js'
 import storageService from './services/storageService.js'
+import imageService from './services/imageService.js'
 import { calculateNextDifficulty, getCongratulationsMessage, willDifficultyIncrease } from './utils/difficultyCalculator.js'
 import { GAME_CONFIG } from './constants/gameConfig.js'
 import './styles/themes.css'
@@ -22,6 +24,7 @@ function App() {
   const [showCelebration, setShowCelebration] = useState(false)
   const [celebrationMessage, setCelebrationMessage] = useState('')
   const [isLevelUp, setIsLevelUp] = useState(false)
+  const [gameBoardKey, setGameBoardKey] = useState(0) // Key to force GameBoard remount on reset
 
   // Calculate responsive grid size
   // Use total piece count as max unplaced count for consistent sizing
@@ -87,6 +90,32 @@ function App() {
     }
   }
 
+  const handleFullReset = async () => {
+    // Reset progress to initial state
+    setCompletedCount(0)
+    setDifficulty({
+      rows: GAME_CONFIG.MIN_GRID_SIZE,
+      cols: GAME_CONFIG.MIN_GRID_SIZE,
+    })
+
+    // Clear localStorage
+    storageService.clearProgress()
+
+    // Get next image in rotation
+    const nextImage = imageService.resetToNextImage()
+    if (nextImage) {
+      setCurrentImage(nextImage.url)
+    }
+
+    // Force GameBoard to remount with new image
+    setGameBoardKey(prevKey => prevKey + 1)
+
+    // Hide any open celebration
+    setShowCelebration(false)
+
+    console.log('Game reset complete')
+  }
+
   if (isLoading) {
     return (
       <div className="app-container">
@@ -106,6 +135,8 @@ function App() {
 
   return (
     <div className="app-container">
+      <ResetButton onReset={handleFullReset} />
+
       <ProgressBar
         rows={difficulty.rows}
         cols={difficulty.cols}
@@ -113,6 +144,7 @@ function App() {
       />
 
       <GameBoard
+        key={gameBoardKey}
         imageUrl={currentImage}
         rows={difficulty.rows}
         cols={difficulty.cols}
