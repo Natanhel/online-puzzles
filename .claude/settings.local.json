@@ -9,7 +9,9 @@
       "Bash(git merge:*)",
       "Bash(git restore:*)",
       "Bash(pkill:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "WebSearch",
+      "WebFetch(domain:freesvg.org)"
     ]
   }
 }
