@@ -3,7 +3,7 @@ import { openDB } from 'idb';
 
 const DB_NAME = 'PuzzleGameDB';
 const STORE_NAME = 'images';
-const DB_VERSION = 4; // Updated to use new CC0 cartoon SVGs
+const DB_VERSION = 5; // Force clear cache to use new SVG images
 
 class ImageService {
   constructor() {
@@ -21,10 +21,13 @@ class ImageService {
 
     try {
       this.db = await openDB(DB_NAME, DB_VERSION, {
-        upgrade(db) {
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        upgrade(db, oldVersion, newVersion) {
+          // Clear old data when upgrading versions
+          if (db.objectStoreNames.contains(STORE_NAME)) {
+            db.deleteObjectStore(STORE_NAME);
           }
+          db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          console.log(`Database upgraded from v${oldVersion} to v${newVersion} - cache cleared`);
         },
       });
       this.isInitialized = true;
