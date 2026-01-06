@@ -3,7 +3,7 @@ import { openDB } from 'idb';
 
 const DB_NAME = 'PuzzleGameDB';
 const STORE_NAME = 'images';
-const DB_VERSION = 8; // Force cache clear to load all 33 SVG images
+const DB_VERSION = 9; // Return all 33 SVG images at once instead of cycling through 5
 
 class ImageService {
   constructor() {
@@ -101,10 +101,11 @@ class ImageService {
 
   /**
    * Get fallback images from local assets
-   * @param {number} count - Number of images to return
+   * @param {number} count - Number of images to return (ignored for local SVGs, returns all)
    * @returns {Array} Array of fallback image objects
    */
   getFallbackImages(count = 5) {
+    // Return ALL local SVG images - they don't need limiting since they're local
     const fallbacks = GAME_CONFIG.FALLBACK_IMAGES.map((path, index) => ({
       id: `fallback-${index}`,
       url: path,
@@ -113,13 +114,7 @@ class ImageService {
       source: 'local',
     }));
 
-    // Cycle through fallbacks if count exceeds available
-    const result = [];
-    for (let i = 0; i < count; i++) {
-      result.push(fallbacks[i % fallbacks.length]);
-    }
-
-    return result;
+    return fallbacks;
   }
 
   /**
