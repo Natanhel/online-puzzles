@@ -42,6 +42,14 @@ export const GAME_CONFIG = {
     '/assets/image-30-ship.svg',
     '/assets/image-31-monkey-alt.svg',
     '/assets/image-32-van.svg',
+    '/assets/image-33-fries.svg',
+    '/assets/image-34-hotdog.svg',
+    '/assets/image-35-kiwi.svg',
+    '/assets/image-36-muffin.svg',
+    '/assets/image-37-pizza.svg',
+    '/assets/image-38-strawberry.svg',
+    '/assets/image-39-taco.svg',
+    '/assets/image-40-watermelon.svg',
   ],
 
   // API settings

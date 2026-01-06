@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PuzzleGrid from './PuzzleGrid.jsx';
 import PuzzlePiece from './PuzzlePiece.jsx';
-import { createPuzzlePieces, updatePiecePosition, validatePuzzle, getUnplacedPieces } from '../../services/puzzleEngine.js';
+import HintButton from '../UI/HintButton.jsx';
+import { createPuzzlePieces, updatePiecePosition, validatePuzzle, getUnplacedPieces, applyHint } from '../../services/puzzleEngine.js';
 import { getEventPosition, getDropZoneAtPosition } from '../../utils/touchHelpers.js';
 import './GameBoard.css';
 
@@ -101,6 +102,25 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize }) => {
     document.removeEventListener('touchend', handleDragEnd);
   };
 
+  const handleHint = () => {
+    if (!puzzleData) return;
+
+    const updatedPieces = applyHint(puzzleData.pieces);
+
+    setPuzzleData({
+      ...puzzleData,
+      pieces: updatedPieces,
+    });
+
+    // Check if puzzle is complete after hint
+    const validation = validatePuzzle(updatedPieces);
+    if (validation.isComplete && onComplete) {
+      setTimeout(() => {
+        onComplete();
+      }, 500);
+    }
+  };
+
   if (!puzzleData) {
     return (
       <div className="game-board game-board--loading">
@@ -117,6 +137,9 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize }) => {
 
   return (
     <div className="game-board">
+      {/* Hint button for small kids */}
+      <HintButton onHint={handleHint} disabled={unplacedPieces.length < 2} />
+
       <div className="game-board__content">
         {/* Left tray for unplaced pieces */}
         <div className="game-board__side-tray game-board__side-tray--left">

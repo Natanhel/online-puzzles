@@ -278,6 +278,39 @@ export function getPuzzleStats(pieces) {
   };
 }
 
+/**
+ * Apply hint mode - place up to 50% of unplaced pieces in their correct positions
+ * @param {Array} pieces - Array of puzzle pieces
+ * @returns {Array} Updated pieces array with some pieces placed correctly
+ */
+export function applyHint(pieces) {
+  const unplacedPieces = getUnplacedPieces(pieces);
+
+  // Need at least 2 pieces to provide a hint
+  if (unplacedPieces.length < 2) {
+    return pieces;
+  }
+
+  // Calculate how many pieces to place (up to 50%)
+  const piecesToPlace = Math.floor(unplacedPieces.length / 2);
+
+  // Shuffle unplaced pieces and take the first N to place
+  const shuffled = shuffleArray(unplacedPieces);
+  const piecesToHelp = shuffled.slice(0, piecesToPlace);
+
+  // Place each selected piece in its correct position
+  let updatedPieces = pieces;
+  for (const piece of piecesToHelp) {
+    updatedPieces = updatePiecePosition(
+      updatedPieces,
+      piece.id,
+      piece.correctPosition
+    );
+  }
+
+  return updatedPieces;
+}
+
 export default {
   createPuzzlePieces,
   validatePuzzle,
@@ -288,4 +321,5 @@ export default {
   swapPieces,
   resetPuzzle,
   getPuzzleStats,
+  applyHint,
 };

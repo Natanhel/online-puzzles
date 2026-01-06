@@ -1,0 +1,43 @@
+.hint-button {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #FFE66D 0%, #FFC93C 100%);
+  color: #333;
+  border: 3px solid white;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1000;
+  font-family: inherit;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hint-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.hint-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.hint-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Make button larger on small screens for easier tapping */
+@media (max-width: 768px) {
+  .hint-button {
+    top: 12px;
+    left: 12px;
+    padding: 14px 28px;
+    font-size: 20px;
+  }
+}
