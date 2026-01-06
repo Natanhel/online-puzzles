@@ -15,26 +15,15 @@ const DropZone = memo(({
   size,
   piece = null,
   isHighlighted = false,
-  onDrop,
   onPieceDragStart,
+  isDraggedPiece = false,
 }) => {
   const { row, col } = position;
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (onDrop) {
-      onDrop(position);
-    }
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault(); // Necessary to allow dropping
-  };
 
   const className = [
     'drop-zone',
     isHighlighted && 'drop-zone--highlighted',
-    piece && 'drop-zone--filled',
+    piece && !isDraggedPiece && 'drop-zone--filled',
   ].filter(Boolean).join(' ');
 
   const style = {
@@ -46,12 +35,10 @@ const DropZone = memo(({
     <div
       className={className}
       style={style}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
       data-row={row}
       data-col={col}
     >
-      {piece && (
+      {piece && !isDraggedPiece && (
         <PuzzlePiece
           piece={piece}
           size={size}

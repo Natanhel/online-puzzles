@@ -73,6 +73,16 @@
   animation: bounce 1s ease infinite;
 }
 
+.game-board__floating-piece {
+  cursor: grabbing !important;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+}
+
+.game-board__floating-piece .puzzle-piece {
+  opacity: 1 !important;
+  transform: scale(1.1) !important;
+}
+
 /* Responsive adjustments */
 @media (max-height: 600px) {
   .game-board {

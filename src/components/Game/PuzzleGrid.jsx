@@ -16,8 +16,8 @@ const PuzzleGrid = memo(({
   rows,
   cols,
   pieces,
-  onDrop,
   onPieceDragStart,
+  draggedPieceId,
 }) => {
   const gridSize = useResponsiveGrid(rows, cols);
   const { width, height, pieceSize } = gridSize;
@@ -50,8 +50,8 @@ const PuzzleGrid = memo(({
           position={position}
           size={pieceSize}
           piece={piece}
-          onDrop={onDrop}
           onPieceDragStart={onPieceDragStart}
+          isDraggedPiece={piece?.id === draggedPieceId}
         />
       ))}
     </div>

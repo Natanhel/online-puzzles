@@ -18,15 +18,8 @@ const PuzzlePiece = memo(({
 }) => {
   const { imageData, isPlaced, isCorrect } = piece;
 
-  const handleTouchStart = (e) => {
+  const handleStart = (e) => {
     if (isPlaced) return; // Can't drag pieces that are already placed
-    if (onDragStart) {
-      onDragStart(e, piece);
-    }
-  };
-
-  const handleMouseDown = (e) => {
-    if (isPlaced) return;
     if (onDragStart) {
       onDragStart(e, piece);
     }
@@ -39,8 +32,8 @@ const PuzzlePiece = memo(({
     backgroundSize: imageData.backgroundSize,
     backgroundPosition: imageData.backgroundPosition,
     cursor: isPlaced ? 'default' : 'grab',
-    opacity: isDragging ? 0.5 : 1,
-    transform: isDragging ? 'scale(1.1)' : 'scale(1)',
+    opacity: isDragging ? 0.3 : 1,
+    transform: isDragging ? 'scale(1.05)' : 'scale(1)',
   };
 
   const className = [
@@ -54,8 +47,8 @@ const PuzzlePiece = memo(({
     <div
       className={className}
       style={style}
-      onTouchStart={handleTouchStart}
-      onMouseDown={handleMouseDown}
+      onMouseDown={handleStart}
+      onTouchStart={handleStart}
       data-piece-id={piece.id}
     >
       {isCorrect && <div className="puzzle-piece__checkmark">✓</div>}
