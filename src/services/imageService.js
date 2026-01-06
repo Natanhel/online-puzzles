@@ -50,13 +50,12 @@ class ImageService {
     }
 
     try {
-      // Random category from our kid-friendly list
-      const category = GAME_CONFIG.IMAGE_CATEGORIES[
-        Math.floor(Math.random() * GAME_CONFIG.IMAGE_CATEGORIES.length)
-      ];
+      // Kid-friendly cartoon animals
+      const animals = ['cartoon cat', 'cartoon dog', 'cartoon bird', 'cartoon turtle', 'cartoon rabbit', 'cartoon elephant'];
+      const category = animals[Math.floor(Math.random() * animals.length)];
 
       const url = new URL('https://api.unsplash.com/photos/random');
-      url.searchParams.append('query', category);
+      url.searchParams.append('query', `${category} illustration children`);
       url.searchParams.append('count', count.toString());
       url.searchParams.append('content_filter', 'high');
       url.searchParams.append('orientation', 'landscape');

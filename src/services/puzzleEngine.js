@@ -142,7 +142,21 @@ export function isPieceCorrect(piece, position) {
  * @returns {Array} Updated pieces array
  */
 export function updatePiecePosition(pieces, pieceId, position) {
+  // First, check if there's already a piece at the target position
+  const existingPiece = position ? getPieceAtPosition(pieces, position) : null;
+
   return pieces.map(piece => {
+    // Remove the existing piece from the target position
+    if (existingPiece && piece.id === existingPiece.id) {
+      return {
+        ...piece,
+        currentPosition: null,
+        isPlaced: false,
+        isCorrect: false,
+      };
+    }
+
+    // Place the new piece
     if (piece.id === pieceId) {
       const isCorrect = position ? isPieceCorrect(piece, position) : false;
       return {
@@ -152,6 +166,7 @@ export function updatePiecePosition(pieces, pieceId, position) {
         isCorrect,
       };
     }
+
     return piece;
   });
 }
