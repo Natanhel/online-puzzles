@@ -3,7 +3,7 @@ import { openDB } from 'idb';
 
 const DB_NAME = 'PuzzleGameDB';
 const STORE_NAME = 'images';
-const DB_VERSION = 9; // Return all 33 SVG images at once instead of cycling through 5
+const DB_VERSION = 10; // Lenient orientation filtering for better variety
 
 class ImageService {
   constructor() {
@@ -317,6 +317,8 @@ class ImageService {
     if (puzzleRows && puzzleCols) {
       availableImages = this.filterImagesByOrientation(this.cache, puzzleRows, puzzleCols);
 
+      console.log(`Puzzle ${puzzleRows}x${puzzleCols}: ${availableImages.length} of ${this.cache.length} images match orientation`);
+
       // If no matching images found, fall back to all images
       if (availableImages.length === 0) {
         console.warn('No images match puzzle orientation, using all images');
@@ -327,6 +329,8 @@ class ImageService {
     // Get current image and increment index
     const image = availableImages[this.currentIndex % availableImages.length];
     this.currentIndex++;
+
+    console.log(`Selected image: ${image.id} (${image.url})`);
 
     return image;
   }
@@ -339,40 +343,36 @@ class ImageService {
    * @returns {Array} Filtered images matching orientation
    */
   filterImagesByOrientation(images, puzzleRows, puzzleCols) {
-    const puzzleAspectRatio = puzzleCols / puzzleRows;
+    // For kids' games, we want variety - use lenient filtering
+    // Images will scale/crop slightly to fit, which is fine for this audience
+
     const isSquarePuzzle = puzzleRows === puzzleCols;
     const isWidePuzzle = puzzleCols > puzzleRows;
     const isTallPuzzle = puzzleRows > puzzleCols;
 
     return images.filter(img => {
-      // Load image to get dimensions (we'll need to preload this)
-      // For now, assume SVGs from local have aspect ratios we can infer from filenames
-      // or we need to store aspect ratios in the image objects
-
-      // Since we don't have aspect ratios stored yet, let's use a simple heuristic:
-      // We'll need to update this when images are cached to include aspect ratios
-
-      // For now, check if image has aspectRatio property
+      // If no aspect ratio info, include all images
       if (!img.aspectRatio) {
-        // If no aspect ratio info, include it (backward compatibility)
         return true;
       }
 
       const imageAspectRatio = img.aspectRatio;
-      const isSquareImage = Math.abs(imageAspectRatio - 1) < 0.2; // Within 20% of square
-      const isWideImage = imageAspectRatio > 1.2;
-      const isTallImage = imageAspectRatio < 0.8;
 
-      // Matching logic:
-      // - Square puzzles: prefer square images
-      // - Wide puzzles: prefer wide images
-      // - Tall puzzles: prefer tall images
+      // Very lenient thresholds for kids' game variety
+      const isSquareImage = imageAspectRatio >= 0.7 && imageAspectRatio <= 1.5; // Generous square range
+      const isWideImage = imageAspectRatio > 0.9; // Most non-tall images
+      const isTallImage = imageAspectRatio < 1.3; // Most non-wide images
+
+      // Lenient matching - almost all images work with any puzzle
       if (isSquarePuzzle) {
-        return isSquareImage;
+        // Square puzzles: accept almost anything that's not extremely tall or wide
+        return imageAspectRatio >= 0.5 && imageAspectRatio <= 2.0;
       } else if (isWidePuzzle) {
-        return isWideImage || isSquareImage;
+        // Wide puzzles: accept wide and square-ish images
+        return imageAspectRatio >= 0.7; // Exclude very tall images only
       } else if (isTallPuzzle) {
-        return isTallImage || isSquareImage;
+        // Tall puzzles: accept tall and square-ish images
+        return imageAspectRatio <= 1.5; // Exclude very wide images only
       }
 
       return true;
