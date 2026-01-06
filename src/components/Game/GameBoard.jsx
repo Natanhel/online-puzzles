@@ -17,6 +17,7 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize, hintModeEnable
   const draggedPieceRef = useRef(null);
   const isDraggingRef = useRef(false);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
+  const originalPositionRef = useRef(null); // Store original position before drag
   const hintAppliedRef = useRef(false);
 
   // Initialize puzzle when image or dimensions change
@@ -65,6 +66,8 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize, hintModeEnable
     draggedPieceRef.current = piece;
     isDraggingRef.current = true;
     dragStartPosRef.current = pos;
+    // Store original position to restore if drop is invalid
+    originalPositionRef.current = piece.isPlaced ? piece.currentPosition : null;
     setDragPosition(pos);
 
     // Add mouse/touch move and up listeners
@@ -87,10 +90,10 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize, hintModeEnable
 
     const pos = getEventPosition(e);
     const dropZone = getDropZoneAtPosition(pos.x, pos.y);
+    const draggedPiece = draggedPieceRef.current;
 
     if (dropZone) {
       // Check if piece would be in correct position
-      const draggedPiece = draggedPieceRef.current;
       const isCorrectPosition =
         draggedPiece.correctPosition.row === dropZone.row &&
         draggedPiece.correctPosition.col === dropZone.col;
@@ -115,13 +118,38 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize, hintModeEnable
             onComplete();
           }, 500);
         }
+      } else if (originalPositionRef.current) {
+        // If drop is incorrect and piece was already on board, restore to original position
+        const updatedPieces = updatePiecePosition(
+          puzzleData.pieces,
+          draggedPiece.id,
+          originalPositionRef.current
+        );
+
+        setPuzzleData({
+          ...puzzleData,
+          pieces: updatedPieces,
+        });
       }
-      // If incorrect position, piece will return to tray (do nothing)
+      // If incorrect position and piece was from tray, it returns to tray (do nothing)
+    } else if (originalPositionRef.current) {
+      // Dropped outside board - if piece was on board, restore it
+      const updatedPieces = updatePiecePosition(
+        puzzleData.pieces,
+        draggedPiece.id,
+        originalPositionRef.current
+      );
+
+      setPuzzleData({
+        ...puzzleData,
+        pieces: updatedPieces,
+      });
     }
 
     // Clean up
     draggedPieceRef.current = null;
     isDraggingRef.current = false;
+    originalPositionRef.current = null;
 
     // Remove listeners
     document.removeEventListener('mousemove', handleDragMove);
