@@ -27,17 +27,11 @@ function shuffleArray(array) {
 export function createPuzzlePieces(imageUrl, rows, cols, aspectRatio = 1) {
   const pieces = [];
 
-  // Calculate background-size accounting for aspect ratio
-  // Pieces are square, but images may not be
-  // For wide images (aspectRatio > 1): adjust width
-  // For tall images (aspectRatio < 1): adjust height
+  // Simple approach: Just use cols * 100% and rows * 100%
+  // This fills the grid with the image, accepting slight distortion for non-square images
+  // For kids' puzzles, consistency is more important than perfect aspect ratios
   const bgSizeWidth = cols * 100;
-  const bgSizeHeight = aspectRatio >= 1
-    ? rows * 100 * aspectRatio  // Wide/square image: increase height
-    : rows * 100;               // Tall image: keep height
-  const bgSizeWidthAdjusted = aspectRatio < 1
-    ? cols * 100 / aspectRatio  // Tall image: increase width
-    : cols * 100;               // Wide/square image: keep width
+  const bgSizeHeight = rows * 100;
 
   // Generate pieces for each position in the grid
   for (let row = 0; row < rows; row++) {
@@ -53,7 +47,7 @@ export function createPuzzlePieces(imageUrl, rows, cols, aspectRatio = 1) {
         currentPosition: null, // Not placed yet
         imageData: {
           imageUrl: imageUrl,
-          backgroundSize: `${bgSizeWidthAdjusted}% ${bgSizeHeight}%`,
+          backgroundSize: `${bgSizeWidth}% ${bgSizeHeight}%`,
           backgroundPosition: `${bgPosX}% ${bgPosY}%`,
         },
         isPlaced: false,
