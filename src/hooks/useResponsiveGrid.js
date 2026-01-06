@@ -22,56 +22,68 @@ export function useResponsiveGrid(rows, cols, unplacedCount = 0) {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    // Reserve space for UI elements
-    const topReserved = 120; // Progress bar
-    const padding = 10;
-    const trayGap = 10; // Gap between pieces in tray
+    // CSS spacing values (from themes.css)
+    const spacingSm = 8;  // --spacing-sm
+    const spacingMd = 16; // --spacing-md
 
-    // Available space
-    const availableWidth = viewportWidth - (padding * 4); // padding on all sides plus gaps
-    const availableHeight = viewportHeight - topReserved - (padding * 2);
+    // Layout structure:
+    // - Game board padding: spacingSm (8px) on all sides
+    // - Content gap between grid and trays: spacingMd (16px)
+    // - Each tray width: 18% of viewport
+    // - Tray padding: spacingSm (8px) on all sides
+    // - Tray piece gap: spacingSm (8px) between pieces
 
-    // Calculate how many pieces will be in each side tray
-    const piecesPerTray = Math.ceil(unplacedCount / 2);
+    const topReserved = 120; // Progress bar height
+    const gameBoardPadding = spacingSm * 2; // top + bottom
+    const contentGap = spacingMd * 2; // 2 gaps (left tray-grid, grid-right tray)
+    const trayPadding = spacingSm * 2; // top + bottom padding for each tray
+    const trayPieceGap = spacingSm; // gap between pieces in tray
 
-    // We need to fit:
-    // - Grid: cols × rows pieces
-    // - Left tray: piecesPerTray pieces vertically
-    // - Right tray: piecesPerTray pieces vertically
+    // Available viewport space
+    const availableWidth = viewportWidth - gameBoardPadding;
+    const availableHeight = viewportHeight - topReserved - gameBoardPadding;
 
-    // Calculate piece size constrained by:
-    // 1. Grid width and height
-    // 2. Tray height (must fit piecesPerTray pieces vertically)
+    // Layout allocation:
+    // Each tray: 18% of availableWidth
+    // Grid: remaining width after trays and gaps
+    const trayWidthPercent = 0.18;
+    const singleTrayWidth = availableWidth * trayWidthPercent;
+    const totalTrayWidth = singleTrayWidth * 2;
+    const gridAreaWidth = availableWidth - totalTrayWidth - contentGap;
 
-    // For grid
-    const gridPieceWidth = (availableWidth * 0.6) / cols; // 60% for grid
+    // Calculate piece size for grid
+    const gridPieceWidth = gridAreaWidth / cols;
     const gridPieceHeight = availableHeight / rows;
 
-    // For trays (each tray gets ~20% of width)
-    const trayWidth = availableWidth * 0.18; // 18% for each tray
+    // Calculate how many pieces per tray
+    const piecesPerTray = Math.ceil(unplacedCount / 2);
+
+    // Calculate piece size for tray (must fit width and height with padding/gaps)
+    const trayInnerWidth = singleTrayWidth - (spacingSm * 2); // subtract left+right padding
+    const trayPieceWidth = trayInnerWidth;
+
+    const trayInnerHeight = availableHeight - trayPadding;
     const trayPieceHeight = piecesPerTray > 0
-      ? (availableHeight - (piecesPerTray - 1) * trayGap) / piecesPerTray
-      : availableHeight;
+      ? (trayInnerHeight - (piecesPerTray - 1) * trayPieceGap) / piecesPerTray
+      : trayInnerHeight;
 
     // Piece size must work for both grid and trays
     let pieceSize = Math.min(
       gridPieceWidth,
       gridPieceHeight,
-      trayWidth,
+      trayPieceWidth,
       trayPieceHeight
     );
 
-    // Ensure minimum touch target size
+    // Ensure minimum touch target size if possible
     const minSize = GAME_CONFIG.MIN_TOUCH_TARGET;
+    const gridCanFitMinSize = Math.min(gridPieceWidth, gridPieceHeight) >= minSize;
 
-    // Only enforce minimum if it doesn't cause overflow
-    const minPieceWithGrid = Math.min(
-      availableWidth * 0.6 / cols,
-      availableHeight / rows
-    );
-
-    if (minPieceWithGrid >= minSize) {
+    if (gridCanFitMinSize) {
       pieceSize = Math.max(pieceSize, minSize);
+
+      // But ensure we don't exceed tray constraints
+      pieceSize = Math.min(pieceSize, trayPieceWidth, trayPieceHeight);
     }
 
     // Round to avoid sub-pixel rendering issues
