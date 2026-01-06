@@ -88,6 +88,9 @@ function App() {
     if (image) {
       setCurrentImage(image.url)
     }
+
+    // Force GameBoard to remount with new image and difficulty
+    setGameBoardKey(prevKey => prevKey + 1)
   }
 
   const handleFullReset = async () => {
