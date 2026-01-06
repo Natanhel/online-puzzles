@@ -1,0 +1,5 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#95E1D3"/>
+  <rect x="250" y="200" width="300" height="200" fill="#4ECDC4" rx="15"/>
+  <text x="400" y="320" font-family="Arial, sans-serif" font-size="48" fill="white" text-anchor="middle">🚗</text>
+</svg>

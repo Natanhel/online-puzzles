@@ -1,0 +1,5 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#B4A7D6"/>
+  <polygon points="400,100 550,350 250,350" fill="#FFB3D9"/>
+  <text x="400" y="500" font-family="Arial, sans-serif" font-size="48" fill="white" text-anchor="middle">🎈</text>
+</svg>
