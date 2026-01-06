@@ -20,8 +20,20 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize }) => {
   // Initialize puzzle when image or dimensions change
   useEffect(() => {
     if (imageUrl) {
-      const data = createPuzzlePieces(imageUrl, rows, cols);
-      setPuzzleData(data);
+      // Load the image to get its natural dimensions
+      const img = new Image();
+      img.onload = () => {
+        const aspectRatio = img.naturalWidth / img.naturalHeight;
+        const data = createPuzzlePieces(imageUrl, rows, cols, aspectRatio);
+        setPuzzleData(data);
+      };
+      img.onerror = () => {
+        // Fallback to square aspect ratio if image fails to load
+        console.warn('Failed to load image for aspect ratio calculation');
+        const data = createPuzzlePieces(imageUrl, rows, cols, 1);
+        setPuzzleData(data);
+      };
+      img.src = imageUrl;
     }
   }, [imageUrl, rows, cols]);
 

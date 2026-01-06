@@ -21,10 +21,23 @@ function shuffleArray(array) {
  * @param {string} imageUrl - URL of the image to slice
  * @param {number} rows - Number of rows in the puzzle
  * @param {number} cols - Number of columns in the puzzle
+ * @param {number} aspectRatio - Image aspect ratio (width/height), defaults to 1 for square
  * @returns {Object} Puzzle data with pieces array and grid info
  */
-export function createPuzzlePieces(imageUrl, rows, cols) {
+export function createPuzzlePieces(imageUrl, rows, cols, aspectRatio = 1) {
   const pieces = [];
+
+  // Calculate background-size accounting for aspect ratio
+  // Pieces are square, but images may not be
+  // For wide images (aspectRatio > 1): adjust width
+  // For tall images (aspectRatio < 1): adjust height
+  const bgSizeWidth = cols * 100;
+  const bgSizeHeight = aspectRatio >= 1
+    ? rows * 100 * aspectRatio  // Wide/square image: increase height
+    : rows * 100;               // Tall image: keep height
+  const bgSizeWidthAdjusted = aspectRatio < 1
+    ? cols * 100 / aspectRatio  // Tall image: increase width
+    : cols * 100;               // Wide/square image: keep width
 
   // Generate pieces for each position in the grid
   for (let row = 0; row < rows; row++) {
@@ -40,7 +53,7 @@ export function createPuzzlePieces(imageUrl, rows, cols) {
         currentPosition: null, // Not placed yet
         imageData: {
           imageUrl: imageUrl,
-          backgroundSize: `${cols * 100}% ${rows * 100}%`,
+          backgroundSize: `${bgSizeWidthAdjusted}% ${bgSizeHeight}%`,
           backgroundPosition: `${bgPosX}% ${bgPosY}%`,
         },
         isPlaced: false,
@@ -60,6 +73,7 @@ export function createPuzzlePieces(imageUrl, rows, cols) {
       totalPieces: rows * cols,
     },
     imageUrl,
+    aspectRatio,
   };
 }
 

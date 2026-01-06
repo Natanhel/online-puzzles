@@ -3,7 +3,7 @@ import { openDB } from 'idb';
 
 const DB_NAME = 'PuzzleGameDB';
 const STORE_NAME = 'images';
-const DB_VERSION = 3; // Force use of local cartoon SVGs only
+const DB_VERSION = 4; // Updated to use new CC0 cartoon SVGs
 
 class ImageService {
   constructor() {
