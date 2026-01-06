@@ -3,7 +3,7 @@ import { openDB } from 'idb';
 
 const DB_NAME = 'PuzzleGameDB';
 const STORE_NAME = 'images';
-const DB_VERSION = 2; // Incremented to force cache clear for new cartoon images
+const DB_VERSION = 3; // Force use of local cartoon SVGs only
 
 class ImageService {
   constructor() {
@@ -41,6 +41,12 @@ class ImageService {
    * @returns {Promise<Array>} Array of image objects
    */
   async fetchKidFriendlyImages(count = 5) {
+    // ALWAYS use cartoon fallback images for kids
+    // Unsplash doesn't reliably return cartoon-style images suitable for toddlers
+    console.log('Using local cartoon animal fallback images for kids');
+    return this.getFallbackImages(count);
+
+    /* Disabled Unsplash API - using local cartoon SVGs instead
     const apiKey = GAME_CONFIG.UNSPLASH_ACCESS_KEY;
 
     // If no API key or demo mode, return fallback images
@@ -87,6 +93,7 @@ class ImageService {
       // Fallback to local images on error
       return this.getFallbackImages(count);
     }
+    */
   }
 
   /**

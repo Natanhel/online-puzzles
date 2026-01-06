@@ -142,21 +142,42 @@ export function isPieceCorrect(piece, position) {
  * @returns {Array} Updated pieces array
  */
 export function updatePiecePosition(pieces, pieceId, position) {
-  // First, check if there's already a piece at the target position
+  // Find the piece being moved
+  const draggedPiece = pieces.find(p => p.id === pieceId);
+  if (!draggedPiece) return pieces;
+
+  // Check if there's already a piece at the target position
   const existingPiece = position ? getPieceAtPosition(pieces, position) : null;
 
+  // Determine behavior based on whether dragged piece is from board or tray
+  const draggedFromBoard = draggedPiece.isPlaced;
+  const shouldSwap = draggedFromBoard && existingPiece;
+
   return pieces.map(piece => {
-    // Remove the existing piece from the target position
+    // Handle the existing piece at target position
     if (existingPiece && piece.id === existingPiece.id) {
-      return {
-        ...piece,
-        currentPosition: null,
-        isPlaced: false,
-        isCorrect: false,
-      };
+      if (shouldSwap) {
+        // SWAP: Move existing piece to dragged piece's old position
+        const swapPosition = draggedPiece.currentPosition;
+        const isCorrect = swapPosition ? isPieceCorrect(piece, swapPosition) : false;
+        return {
+          ...piece,
+          currentPosition: swapPosition,
+          isPlaced: swapPosition !== null,
+          isCorrect,
+        };
+      } else {
+        // REMOVE TO TRAY: Dragged from tray, remove existing piece
+        return {
+          ...piece,
+          currentPosition: null,
+          isPlaced: false,
+          isCorrect: false,
+        };
+      }
     }
 
-    // Place the new piece
+    // Place the dragged piece at new position
     if (piece.id === pieceId) {
       const isCorrect = position ? isPieceCorrect(piece, position) : false;
       return {

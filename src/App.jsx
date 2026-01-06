@@ -24,7 +24,9 @@ function App() {
   const [isLevelUp, setIsLevelUp] = useState(false)
 
   // Calculate responsive grid size
-  const gridSize = useResponsiveGrid(difficulty.rows, difficulty.cols)
+  // Use total piece count as max unplaced count for consistent sizing
+  const totalPieces = difficulty.rows * difficulty.cols;
+  const gridSize = useResponsiveGrid(difficulty.rows, difficulty.cols, totalPieces)
 
   // Initialize game
   useEffect(() => {

@@ -72,12 +72,13 @@
   justify-content: flex-start;
   background: rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-md);
+  padding: var(--spacing-sm);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   max-height: 100%;
-  overflow-y: auto;
-  min-width: 15%;
+  overflow: hidden; /* Never scrollable */
+  width: 18%;
+  flex-shrink: 0;
 }
 
 .game-board__side-tray--left {

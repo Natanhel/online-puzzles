@@ -5,9 +5,10 @@ import { GAME_CONFIG } from '../constants/gameConfig.js';
  * Hook to calculate responsive grid dimensions that fit the screen
  * @param {number} rows - Number of rows in the puzzle
  * @param {number} cols - Number of columns in the puzzle
+ * @param {number} unplacedCount - Number of pieces in the trays
  * @returns {Object} Grid dimensions and piece size
  */
-export function useResponsiveGrid(rows, cols) {
+export function useResponsiveGrid(rows, cols, unplacedCount = 0) {
   const [gridSize, setGridSize] = useState({
     width: 0,
     height: 0,
@@ -22,35 +23,55 @@ export function useResponsiveGrid(rows, cols) {
     const viewportHeight = window.innerHeight;
 
     // Reserve space for UI elements
-    // - Top area: progress bar and title (~120px)
-    // - Side trays: left and right (~15% each = 30% total)
-    // - Padding: 20px on each side
-    const topReserved = 120;
-    const sideTraysPercent = 0.35; // 35% total for both side trays plus gaps
-    const padding = 20;
+    const topReserved = 120; // Progress bar
+    const padding = 10;
+    const trayGap = 10; // Gap between pieces in tray
 
-    // Available space for the grid (70% of width for center grid)
-    const availableWidth = (viewportWidth * (1 - sideTraysPercent)) - (padding * 2);
+    // Available space
+    const availableWidth = viewportWidth - (padding * 4); // padding on all sides plus gaps
     const availableHeight = viewportHeight - topReserved - (padding * 2);
 
-    // Calculate piece size based on grid
-    const pieceWidth = availableWidth / cols;
-    const pieceHeight = availableHeight / rows;
+    // Calculate how many pieces will be in each side tray
+    const piecesPerTray = Math.ceil(unplacedCount / 2);
 
-    // Use the smaller dimension to ensure grid fits
-    let pieceSize = Math.min(pieceWidth, pieceHeight);
+    // We need to fit:
+    // - Grid: cols × rows pieces
+    // - Left tray: piecesPerTray pieces vertically
+    // - Right tray: piecesPerTray pieces vertically
+
+    // Calculate piece size constrained by:
+    // 1. Grid width and height
+    // 2. Tray height (must fit piecesPerTray pieces vertically)
+
+    // For grid
+    const gridPieceWidth = (availableWidth * 0.6) / cols; // 60% for grid
+    const gridPieceHeight = availableHeight / rows;
+
+    // For trays (each tray gets ~20% of width)
+    const trayWidth = availableWidth * 0.18; // 18% for each tray
+    const trayPieceHeight = piecesPerTray > 0
+      ? (availableHeight - (piecesPerTray - 1) * trayGap) / piecesPerTray
+      : availableHeight;
+
+    // Piece size must work for both grid and trays
+    let pieceSize = Math.min(
+      gridPieceWidth,
+      gridPieceHeight,
+      trayWidth,
+      trayPieceHeight
+    );
 
     // Ensure minimum touch target size
     const minSize = GAME_CONFIG.MIN_TOUCH_TARGET;
-    pieceSize = Math.max(pieceSize, minSize);
 
-    // If pieces are too large for the screen with minimum size, scale down
-    const gridWidth = pieceSize * cols;
-    const gridHeight = pieceSize * rows;
+    // Only enforce minimum if it doesn't cause overflow
+    const minPieceWithGrid = Math.min(
+      availableWidth * 0.6 / cols,
+      availableHeight / rows
+    );
 
-    if (gridWidth > availableWidth || gridHeight > availableHeight) {
-      // Recalculate with forced fit
-      pieceSize = Math.min(availableWidth / cols, availableHeight / rows);
+    if (minPieceWithGrid >= minSize) {
+      pieceSize = Math.max(pieceSize, minSize);
     }
 
     // Round to avoid sub-pixel rendering issues
@@ -66,7 +87,7 @@ export function useResponsiveGrid(rows, cols) {
       containerWidth: availableWidth,
       containerHeight: availableHeight,
     });
-  }, [rows, cols]);
+  }, [rows, cols, unplacedCount]);
 
   useEffect(() => {
     // Calculate on mount and when grid dimensions change
