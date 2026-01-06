@@ -1,0 +1,118 @@
+/* Kid-Friendly Color Theme */
+:root {
+  /* Primary Color Palette - Bright and Cheerful */
+  --color-primary: #FF6B6B;       /* Coral Red */
+  --color-secondary: #4ECDC4;     /* Turquoise */
+  --color-accent: #FFE66D;        /* Sunny Yellow */
+  --color-success: #95E1D3;       /* Mint Green */
+  --color-info: #A8E6CF;          /* Light Green */
+  --color-purple: #B4A7D6;        /* Soft Purple */
+  --color-orange: #FFB84D;        /* Orange */
+  --color-pink: #FFB3D9;          /* Pink */
+
+  /* Background Colors */
+  --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --bg-secondary: #FFF5E6;        /* Warm Cream */
+  --bg-white: #FFFFFF;
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Text Colors */
+  --text-primary: #2C3E50;        /* Dark Blue-Gray */
+  --text-secondary: #7F8C8D;      /* Medium Gray */
+  --text-white: #FFFFFF;
+  --text-light: #ECF0F1;          /* Very Light Gray */
+
+  /* Typography */
+  --font-primary: 'Fredoka One', cursive;   /* Playful, rounded font for headings */
+  --font-secondary: 'Nunito', sans-serif;   /* Clean, readable font for body */
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+
+  /* Touch Targets */
+  --touch-target-min: 60px;       /* Minimum size for kids' fingers */
+  --touch-target-large: 80px;     /* Extra large for important buttons */
+  --touch-target-xl: 100px;       /* Extra extra large for start buttons */
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.25);
+
+  /* Z-Index Layers */
+  --z-background: 0;
+  --z-content: 10;
+  --z-elevated: 20;
+  --z-dropdown: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
+  --transition-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Puzzle-Specific */
+  --piece-border-width: 3px;
+  --piece-border-color: #FFFFFF;
+  --piece-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --piece-shadow-dragging: 0 8px 20px rgba(0, 0, 0, 0.3);
+  --drop-zone-border: 2px dashed rgba(255, 255, 255, 0.4);
+  --drop-zone-bg: rgba(255, 255, 255, 0.1);
+  --drop-zone-highlight: rgba(255, 255, 255, 0.3);
+}
+
+/* Dark Mode Support (Optional - for parent controls) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Keep colors bright for kids regardless of system theme */
+    /* Kids need high contrast and bright colors */
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --piece-border-width: 4px;
+    --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Color Utility Classes */
+.bg-primary { background-color: var(--color-primary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-accent { background-color: var(--color-accent); }
+.bg-success { background-color: var(--color-success); }
+.bg-white { background-color: var(--bg-white); }
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-white { color: var(--text-white); }
+
+/* Shadow Utilities */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-xl { box-shadow: var(--shadow-xl); }
+
+/* Border Radius Utilities */
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-full { border-radius: var(--radius-full); }

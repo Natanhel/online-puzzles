@@ -1,0 +1,25 @@
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: playful-spin 2s var(--transition-bounce) infinite;
+}
+
+.loading-message {
+  font-family: var(--font-primary);
+  font-size: 1.5rem;
+  color: var(--text-white);
+  text-align: center;
+  margin: 0;
+}

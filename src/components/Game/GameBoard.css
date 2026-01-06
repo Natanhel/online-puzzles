@@ -1,0 +1,104 @@
+.game-board {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  overflow: hidden;
+}
+
+.game-board--loading {
+  justify-content: center;
+}
+
+.game-board__header {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.game-board__progress {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(10px);
+}
+
+.game-board__progress p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-white);
+}
+
+.game-board__grid-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+}
+
+.game-board__pieces-tray {
+  width: 100%;
+  max-width: 600px;
+  min-height: 140px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.pieces-tray__container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  justify-content: center;
+  align-items: center;
+  min-height: 80px;
+}
+
+.pieces-tray__message {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-success);
+  margin: var(--spacing-md) 0;
+  animation: bounce 1s ease infinite;
+}
+
+/* Responsive adjustments */
+@media (max-height: 600px) {
+  .game-board {
+    padding: var(--spacing-sm);
+  }
+
+  .game-board__header {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .game-board__pieces-tray {
+    min-height: 100px;
+    padding: var(--spacing-sm);
+  }
+
+  .pieces-tray__container {
+    min-height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-board__progress p {
+    font-size: 0.9rem;
+  }
+
+  .pieces-tray__container {
+    gap: 6px;
+  }
+}
