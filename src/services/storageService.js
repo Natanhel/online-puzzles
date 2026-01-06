@@ -175,7 +175,27 @@ class StorageService {
       soundEnabled: true,
       hapticFeedback: true,
       showHints: true,
+      hintModeEnabled: false,
     });
+  }
+
+  /**
+   * Get hint mode state
+   * @returns {boolean} True if hint mode is enabled
+   */
+  getHintMode() {
+    const settings = this.getSettings();
+    return settings.hintModeEnabled || false;
+  }
+
+  /**
+   * Set hint mode state
+   * @param {boolean} enabled - Whether hint mode should be enabled
+   */
+  setHintMode(enabled) {
+    const settings = this.getSettings();
+    settings.hintModeEnabled = enabled;
+    this.saveSettings(settings);
   }
 
   /**

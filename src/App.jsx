@@ -25,6 +25,7 @@ function App() {
   const [celebrationMessage, setCelebrationMessage] = useState('')
   const [isLevelUp, setIsLevelUp] = useState(false)
   const [gameBoardKey, setGameBoardKey] = useState(0) // Key to force GameBoard remount on reset
+  const [hintModeEnabled, setHintModeEnabled] = useState(false)
 
   // Calculate responsive grid size
   // Use total piece count as max unplaced count for consistent sizing
@@ -40,6 +41,10 @@ function App() {
       const savedDifficulty = progress.currentDifficulty
       setDifficulty(savedDifficulty)
 
+      // Load hint mode state
+      const hintMode = storageService.getHintMode()
+      setHintModeEnabled(hintMode)
+
       // Load first image matching puzzle orientation
       const image = await imageService.getNextImage(savedDifficulty.rows, savedDifficulty.cols)
       if (image) {
@@ -51,6 +56,12 @@ function App() {
       initGame()
     }
   }, [isLoading])
+
+  const handleToggleHintMode = () => {
+    const newMode = !hintModeEnabled
+    setHintModeEnabled(newMode)
+    storageService.setHintMode(newMode)
+  }
 
   const handlePuzzleComplete = async () => {
     // Check if this will be a level up
@@ -157,6 +168,8 @@ function App() {
         cols={difficulty.cols}
         onComplete={handlePuzzleComplete}
         pieceSize={gridSize.pieceSize}
+        hintModeEnabled={hintModeEnabled}
+        onToggleHintMode={handleToggleHintMode}
       />
 
       <CelebrationModal

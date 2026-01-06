@@ -3,18 +3,18 @@ import './HintButton.css';
 
 /**
  * Hint Button Component
- * Provides help for small kids by placing up to 50% of pieces on the board
+ * Toggle mode that provides continuous help for small kids
  */
-const HintButton = ({ onHint, disabled }) => {
+const HintButton = ({ isActive, onToggle }) => {
   return (
     <button
-      className="hint-button"
-      onClick={onHint}
-      disabled={disabled}
-      aria-label="Get hint - place some pieces"
+      className={`hint-button ${isActive ? 'hint-button--active' : ''}`}
+      onClick={onToggle}
+      aria-label={isActive ? "Help mode ON" : "Help mode OFF"}
+      aria-pressed={isActive}
       type="button"
     >
-      💡 Help Me!
+      💡 Help Me {isActive ? '✓' : ''}
     </button>
   );
 };

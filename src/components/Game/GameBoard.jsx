@@ -9,7 +9,7 @@ import './GameBoard.css';
 /**
  * Main Game Board Component - Orchestrates the puzzle game
  */
-const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize }) => {
+const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize, hintModeEnabled, onToggleHintMode }) => {
   const [puzzleData, setPuzzleData] = useState(null);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
 
@@ -17,10 +17,13 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize }) => {
   const draggedPieceRef = useRef(null);
   const isDraggingRef = useRef(false);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
+  const hintAppliedRef = useRef(false);
 
   // Initialize puzzle when image or dimensions change
   useEffect(() => {
     if (imageUrl) {
+      hintAppliedRef.current = false; // Reset hint applied flag for new puzzle
+
       // Load the image to get its natural dimensions
       const img = new Image();
       img.onload = () => {
@@ -37,6 +40,22 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize }) => {
       img.src = imageUrl;
     }
   }, [imageUrl, rows, cols]);
+
+  // Auto-apply hint when hint mode is enabled and puzzle is ready
+  useEffect(() => {
+    if (hintModeEnabled && puzzleData && !hintAppliedRef.current) {
+      hintAppliedRef.current = true;
+
+      // Apply hint after a short delay to let the puzzle render
+      setTimeout(() => {
+        const updatedPieces = applyHint(puzzleData.pieces);
+        setPuzzleData({
+          ...puzzleData,
+          pieces: updatedPieces,
+        });
+      }, 300);
+    }
+  }, [hintModeEnabled, puzzleData]);
 
   const handlePieceDragStart = (e, piece) => {
     e.preventDefault();
@@ -70,25 +89,34 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize }) => {
     const dropZone = getDropZoneAtPosition(pos.x, pos.y);
 
     if (dropZone) {
-      // Update piece position
-      const updatedPieces = updatePiecePosition(
-        puzzleData.pieces,
-        draggedPieceRef.current.id,
-        dropZone
-      );
+      // Check if piece would be in correct position
+      const draggedPiece = draggedPieceRef.current;
+      const isCorrectPosition =
+        draggedPiece.correctPosition.row === dropZone.row &&
+        draggedPiece.correctPosition.col === dropZone.col;
 
-      setPuzzleData({
-        ...puzzleData,
-        pieces: updatedPieces,
-      });
+      // Only place piece if it's in the correct position
+      if (isCorrectPosition) {
+        const updatedPieces = updatePiecePosition(
+          puzzleData.pieces,
+          draggedPiece.id,
+          dropZone
+        );
 
-      // Check if puzzle is complete
-      const validation = validatePuzzle(updatedPieces);
-      if (validation.isComplete && onComplete) {
-        setTimeout(() => {
-          onComplete();
-        }, 500);
+        setPuzzleData({
+          ...puzzleData,
+          pieces: updatedPieces,
+        });
+
+        // Check if puzzle is complete
+        const validation = validatePuzzle(updatedPieces);
+        if (validation.isComplete && onComplete) {
+          setTimeout(() => {
+            onComplete();
+          }, 500);
+        }
       }
+      // If incorrect position, piece will return to tray (do nothing)
     }
 
     // Clean up
@@ -102,24 +130,6 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize }) => {
     document.removeEventListener('touchend', handleDragEnd);
   };
 
-  const handleHint = () => {
-    if (!puzzleData) return;
-
-    const updatedPieces = applyHint(puzzleData.pieces);
-
-    setPuzzleData({
-      ...puzzleData,
-      pieces: updatedPieces,
-    });
-
-    // Check if puzzle is complete after hint
-    const validation = validatePuzzle(updatedPieces);
-    if (validation.isComplete && onComplete) {
-      setTimeout(() => {
-        onComplete();
-      }, 500);
-    }
-  };
 
   if (!puzzleData) {
     return (
@@ -137,8 +147,8 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize }) => {
 
   return (
     <div className="game-board">
-      {/* Hint button for small kids */}
-      <HintButton onHint={handleHint} disabled={unplacedPieces.length < 2} />
+      {/* Hint mode toggle for small kids */}
+      <HintButton isActive={hintModeEnabled} onToggle={onToggleHintMode} />
 
       <div className="game-board__content">
         {/* Left tray for unplaced pieces */}
