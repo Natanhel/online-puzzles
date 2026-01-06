@@ -3,7 +3,7 @@ import { openDB } from 'idb';
 
 const DB_NAME = 'PuzzleGameDB';
 const STORE_NAME = 'images';
-const DB_VERSION = 5; // Force clear cache to use new SVG images
+const DB_VERSION = 6; // Updated to include 25 total SVG images
 
 class ImageService {
   constructor() {
