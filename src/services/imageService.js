@@ -123,6 +123,37 @@ class ImageService {
   }
 
   /**
+   * Load images and add aspect ratio information
+   * @param {Array} images - Array of image objects
+   * @returns {Promise<Array>} Array of images with aspect ratios
+   */
+  async loadAspectRatios(images) {
+    const promises = images.map(img =>
+      new Promise((resolve) => {
+        const image = new Image();
+        image.onload = () => {
+          const aspectRatio = image.naturalWidth / image.naturalHeight;
+          resolve({
+            ...img,
+            aspectRatio,
+          });
+        };
+        image.onerror = () => {
+          console.warn(`Failed to load image for aspect ratio: ${img.url}`);
+          // Default to square if load fails
+          resolve({
+            ...img,
+            aspectRatio: 1,
+          });
+        };
+        image.src = img.url;
+      })
+    );
+
+    return await Promise.all(promises);
+  }
+
+  /**
    * Preload images into memory and cache
    * @param {Array} imageUrls - Array of image URLs to preload
    * @returns {Promise<Array>} Array of loaded image URLs
@@ -234,10 +265,12 @@ class ImageService {
       const remoteImages = freshImages.filter(img => img.source !== 'local');
 
       // Add local images directly to cache (no preload needed for local SVGs)
+      // But load them to get aspect ratios
       if (localImages.length > 0) {
-        this.cache = [...this.cache, ...localImages];
-        await this.cacheImages(localImages);
-        console.log(`Added ${localImages.length} local images to cache`);
+        const imagesWithAspectRatios = await this.loadAspectRatios(localImages);
+        this.cache = [...this.cache, ...imagesWithAspectRatios];
+        await this.cacheImages(imagesWithAspectRatios);
+        console.log(`Added ${imagesWithAspectRatios.length} local images to cache`);
       }
 
       // Only preload remote images
@@ -268,10 +301,12 @@ class ImageService {
   }
 
   /**
-   * Get the next image from cache
+   * Get the next image from cache, optionally filtered by puzzle orientation
+   * @param {number} puzzleRows - Number of rows in the puzzle
+   * @param {number} puzzleCols - Number of columns in the puzzle
    * @returns {Promise<Object>} Next image object
    */
-  async getNextImage() {
+  async getNextImage(puzzleRows = null, puzzleCols = null) {
     // If cache is running low, fetch more images
     if (this.currentIndex >= this.cache.length - 2) {
       this.fetchMoreImages();
@@ -282,11 +317,71 @@ class ImageService {
       await this.initialize();
     }
 
+    // Filter images by orientation if puzzle dimensions provided
+    let availableImages = this.cache;
+    if (puzzleRows && puzzleCols) {
+      availableImages = this.filterImagesByOrientation(this.cache, puzzleRows, puzzleCols);
+
+      // If no matching images found, fall back to all images
+      if (availableImages.length === 0) {
+        console.warn('No images match puzzle orientation, using all images');
+        availableImages = this.cache;
+      }
+    }
+
     // Get current image and increment index
-    const image = this.cache[this.currentIndex % this.cache.length];
+    const image = availableImages[this.currentIndex % availableImages.length];
     this.currentIndex++;
 
     return image;
+  }
+
+  /**
+   * Filter images by orientation to match puzzle aspect ratio
+   * @param {Array} images - Array of image objects
+   * @param {number} puzzleRows - Number of rows in puzzle
+   * @param {number} puzzleCols - Number of columns in puzzle
+   * @returns {Array} Filtered images matching orientation
+   */
+  filterImagesByOrientation(images, puzzleRows, puzzleCols) {
+    const puzzleAspectRatio = puzzleCols / puzzleRows;
+    const isSquarePuzzle = puzzleRows === puzzleCols;
+    const isWidePuzzle = puzzleCols > puzzleRows;
+    const isTallPuzzle = puzzleRows > puzzleCols;
+
+    return images.filter(img => {
+      // Load image to get dimensions (we'll need to preload this)
+      // For now, assume SVGs from local have aspect ratios we can infer from filenames
+      // or we need to store aspect ratios in the image objects
+
+      // Since we don't have aspect ratios stored yet, let's use a simple heuristic:
+      // We'll need to update this when images are cached to include aspect ratios
+
+      // For now, check if image has aspectRatio property
+      if (!img.aspectRatio) {
+        // If no aspect ratio info, include it (backward compatibility)
+        return true;
+      }
+
+      const imageAspectRatio = img.aspectRatio;
+      const isSquareImage = Math.abs(imageAspectRatio - 1) < 0.2; // Within 20% of square
+      const isWideImage = imageAspectRatio > 1.2;
+      const isTallImage = imageAspectRatio < 0.8;
+
+      // Matching logic:
+      // - Square puzzles: prefer square images
+      // - Wide puzzles: prefer wide images
+      // - Tall puzzles: prefer tall images
+      if (isSquarePuzzle) {
+        return isSquareImage;
+      } else if (isWidePuzzle) {
+        return isWideImage || isSquareImage;
+      } else if (isTallPuzzle) {
+        return isTallImage || isSquareImage;
+      }
+
+      return true;
+    });
   }
 
   /**
@@ -300,11 +395,12 @@ class ImageService {
       const localImages = newImages.filter(img => img.source === 'local');
       const remoteImages = newImages.filter(img => img.source !== 'local');
 
-      // Add local images directly to cache
+      // Add local images directly to cache with aspect ratios
       if (localImages.length > 0) {
-        this.cache = [...this.cache, ...localImages];
-        await this.cacheImages(localImages);
-        console.log(`Added ${localImages.length} additional local images`);
+        const imagesWithAspectRatios = await this.loadAspectRatios(localImages);
+        this.cache = [...this.cache, ...imagesWithAspectRatios];
+        await this.cacheImages(imagesWithAspectRatios);
+        console.log(`Added ${imagesWithAspectRatios.length} additional local images`);
       }
 
       // Only preload remote images

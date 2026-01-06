@@ -1,5 +1,6 @@
 .puzzle-piece {
   position: relative;
+  background-color: white;
   background-repeat: no-repeat;
   border: var(--piece-border-width) solid var(--piece-border-color);
   border-radius: var(--radius-md);

@@ -37,10 +37,11 @@ function App() {
       // Load progress from storage
       const progress = storageService.initializeProgress()
       setCompletedCount(progress.completedPuzzles)
-      setDifficulty(progress.currentDifficulty)
+      const savedDifficulty = progress.currentDifficulty
+      setDifficulty(savedDifficulty)
 
-      // Load first image
-      const image = await getNextImage()
+      // Load first image matching puzzle orientation
+      const image = await imageService.getNextImage(savedDifficulty.rows, savedDifficulty.cols)
       if (image) {
         setCurrentImage(image.url)
       }
@@ -49,7 +50,7 @@ function App() {
     if (!isLoading) {
       initGame()
     }
-  }, [isLoading, getNextImage])
+  }, [isLoading])
 
   const handlePuzzleComplete = async () => {
     // Check if this will be a level up
@@ -83,8 +84,8 @@ function App() {
     setDifficulty({ rows: nextDiff.rows, cols: nextDiff.cols })
     storageService.updateDifficulty(nextDiff.rows, nextDiff.cols)
 
-    // Load next image
-    const image = await getNextImage()
+    // Load next image matching the new puzzle orientation
+    const image = await imageService.getNextImage(nextDiff.rows, nextDiff.cols)
     if (image) {
       setCurrentImage(image.url)
     }
@@ -104,8 +105,11 @@ function App() {
     // Clear localStorage
     storageService.clearProgress()
 
-    // Get next image in rotation
-    const nextImage = imageService.resetToNextImage()
+    // Get next image matching reset difficulty (2x2)
+    const nextImage = await imageService.getNextImage(
+      GAME_CONFIG.MIN_GRID_SIZE,
+      GAME_CONFIG.MIN_GRID_SIZE
+    )
     if (nextImage) {
       setCurrentImage(nextImage.url)
     }

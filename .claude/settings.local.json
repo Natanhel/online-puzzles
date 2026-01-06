@@ -11,7 +11,12 @@
       "Bash(pkill:*)",
       "Bash(cat:*)",
       "WebSearch",
-      "WebFetch(domain:freesvg.org)"
+      "WebFetch(domain:freesvg.org)",
+      "WebFetch(domain:svgsilh.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:openclipart.org)",
+      "Bash(done)",
+      "Bash(ls:*)"
     ]
   }
 }
