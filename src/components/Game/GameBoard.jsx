@@ -92,13 +92,14 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize, hintModeEnable
     const dropZone = getDropZoneAtPosition(pos.x, pos.y);
     const draggedPiece = draggedPieceRef.current;
 
+    // Only update state if drop is valid (correct position)
     if (dropZone) {
       // Check if piece would be in correct position
       const isCorrectPosition =
         draggedPiece.correctPosition.row === dropZone.row &&
         draggedPiece.correctPosition.col === dropZone.col;
 
-      // Only place piece if it's in the correct position
+      // Only update state if drop is correct
       if (isCorrectPosition) {
         const updatedPieces = updatePiecePosition(
           puzzleData.pieces,
@@ -118,33 +119,10 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize, hintModeEnable
             onComplete();
           }, 500);
         }
-      } else if (originalPositionRef.current) {
-        // If drop is incorrect and piece was already on board, restore to original position
-        const updatedPieces = updatePiecePosition(
-          puzzleData.pieces,
-          draggedPiece.id,
-          originalPositionRef.current
-        );
-
-        setPuzzleData({
-          ...puzzleData,
-          pieces: updatedPieces,
-        });
       }
-      // If incorrect position and piece was from tray, it returns to tray (do nothing)
-    } else if (originalPositionRef.current) {
-      // Dropped outside board - if piece was on board, restore it
-      const updatedPieces = updatePiecePosition(
-        puzzleData.pieces,
-        draggedPiece.id,
-        originalPositionRef.current
-      );
-
-      setPuzzleData({
-        ...puzzleData,
-        pieces: updatedPieces,
-      });
+      // If drop is incorrect, don't update state - piece will return to original location automatically
     }
+    // If dropped outside board, don't update state - piece returns to original location
 
     // Clean up
     draggedPieceRef.current = null;
