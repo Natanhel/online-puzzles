@@ -17,12 +17,17 @@ export const GAME_CONFIG = {
     height: 600
   },
   FALLBACK_IMAGES: [
-    '/assets/fallback-1.svg',  // Cat
-    '/assets/fallback-2.svg',  // Dog
-    '/assets/fallback-3.svg',  // Bird
-    '/assets/fallback-4.svg',  // Turtle
-    '/assets/fallback-5.svg',  // Rabbit
-    '/assets/image-06-sun.svg', // Sun
+    '/assets/image-08-blue-cat.svg',
+    '/assets/image-09-car.svg',
+    '/assets/image-10-cat.svg',
+    '/assets/image-11-sun.svg',
+    '/assets/image-12-truck.svg',
+    '/assets/image-13-dog.svg',
+    '/assets/image-14-fish.svg',
+    '/assets/image-15-apple.svg',
+    '/assets/image-16-banana.svg',
+    '/assets/image-17-elephant.svg',
+    '/assets/image-18-red-car.svg',
   ],
 
   // API settings
