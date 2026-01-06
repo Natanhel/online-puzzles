@@ -4,9 +4,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-md);
+  justify-content: center;
+  padding: var(--spacing-sm);
   overflow: hidden;
+}
+
+.game-board__content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  width: 100%;
+  height: 100%;
+  max-height: calc(100vh - 120px);
 }
 
 .game-board--loading {
@@ -37,31 +48,52 @@
 .game-board__grid-container {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
   position: relative;
+  max-width: 70%;
 }
 
-.game-board__pieces-tray {
-  width: 100%;
-  max-width: 600px;
-  min-height: 140px;
+.game-board__complete-message {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-success);
+  margin-top: var(--spacing-md);
+  animation: bounce 1s ease infinite;
+}
+
+/* Side trays for puzzle pieces */
+.game-board__side-tray {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   background: rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
   padding: var(--spacing-md);
-  margin-top: var(--spacing-md);
   backdrop-filter: blur(10px);
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  max-height: 100%;
+  overflow-y: auto;
+  min-width: 15%;
+}
+
+.game-board__side-tray--left {
+  /* Specific styles for left tray if needed */
+}
+
+.game-board__side-tray--right {
+  /* Specific styles for right tray if needed */
 }
 
 .pieces-tray__container {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--spacing-sm);
-  justify-content: center;
   align-items: center;
-  min-height: 80px;
+  width: 100%;
 }
 
 .pieces-tray__message {

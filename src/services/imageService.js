@@ -3,7 +3,7 @@ import { openDB } from 'idb';
 
 const DB_NAME = 'PuzzleGameDB';
 const STORE_NAME = 'images';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Incremented to force cache clear for new cartoon images
 
 class ImageService {
   constructor() {

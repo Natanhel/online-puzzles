@@ -5,7 +5,11 @@
       "Bash(npm:*)",
       "Bash(git init:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git merge:*)",
+      "Bash(git restore:*)",
+      "Bash(pkill:*)",
+      "Bash(cat:*)"
     ]
   }
 }

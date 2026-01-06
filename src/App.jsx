@@ -4,6 +4,7 @@ import LoadingSpinner from './components/UI/LoadingSpinner.jsx'
 import CelebrationModal from './components/UI/CelebrationModal.jsx'
 import ProgressBar from './components/UI/ProgressBar.jsx'
 import useImageApi from './hooks/useImageApi.js'
+import useResponsiveGrid from './hooks/useResponsiveGrid.js'
 import storageService from './services/storageService.js'
 import { calculateNextDifficulty, getCongratulationsMessage, willDifficultyIncrease } from './utils/difficultyCalculator.js'
 import { GAME_CONFIG } from './constants/gameConfig.js'
@@ -21,6 +22,9 @@ function App() {
   const [showCelebration, setShowCelebration] = useState(false)
   const [celebrationMessage, setCelebrationMessage] = useState('')
   const [isLevelUp, setIsLevelUp] = useState(false)
+
+  // Calculate responsive grid size
+  const gridSize = useResponsiveGrid(difficulty.rows, difficulty.cols)
 
   // Initialize game
   useEffect(() => {
@@ -111,6 +115,7 @@ function App() {
         rows={difficulty.rows}
         cols={difficulty.cols}
         onComplete={handlePuzzleComplete}
+        pieceSize={gridSize.pieceSize}
       />
 
       <CelebrationModal

@@ -8,11 +8,13 @@ import './GameBoard.css';
 /**
  * Main Game Board Component - Orchestrates the puzzle game
  */
-const GameBoard = ({ imageUrl, rows, cols, onComplete }) => {
+const GameBoard = ({ imageUrl, rows, cols, onComplete, pieceSize }) => {
   const [puzzleData, setPuzzleData] = useState(null);
-  const [draggedPiece, setDraggedPiece] = useState(null);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
+
+  // Use refs to avoid async state issues with drag events
+  const draggedPieceRef = useRef(null);
+  const isDraggingRef = useRef(false);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
 
   // Initialize puzzle when image or dimensions change
@@ -27,20 +29,21 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete }) => {
     e.preventDefault();
     const pos = getEventPosition(e);
 
-    setDraggedPiece(piece);
-    setDragPosition(pos);
+    // Use refs for immediate access in event handlers
+    draggedPieceRef.current = piece;
+    isDraggingRef.current = true;
     dragStartPosRef.current = pos;
-    setIsDragging(true);
+    setDragPosition(pos);
 
     // Add mouse/touch move and up listeners
     document.addEventListener('mousemove', handleDragMove);
     document.addEventListener('mouseup', handleDragEnd);
-    document.addEventListener('touchmove', handleDragMove);
+    document.addEventListener('touchmove', handleDragMove, { passive: false });
     document.addEventListener('touchend', handleDragEnd);
   };
 
   const handleDragMove = (e) => {
-    if (!isDragging && !draggedPiece) return;
+    if (!isDraggingRef.current || !draggedPieceRef.current) return;
 
     e.preventDefault();
     const pos = getEventPosition(e);
@@ -48,7 +51,7 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete }) => {
   };
 
   const handleDragEnd = (e) => {
-    if (!draggedPiece || !puzzleData) return;
+    if (!draggedPieceRef.current || !puzzleData) return;
 
     const pos = getEventPosition(e);
     const dropZone = getDropZoneAtPosition(pos.x, pos.y);
@@ -57,7 +60,7 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete }) => {
       // Update piece position
       const updatedPieces = updatePiecePosition(
         puzzleData.pieces,
-        draggedPiece.id,
+        draggedPieceRef.current.id,
         dropZone
       );
 
@@ -76,8 +79,8 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete }) => {
     }
 
     // Clean up
-    setDraggedPiece(null);
-    setIsDragging(false);
+    draggedPieceRef.current = null;
+    isDraggingRef.current = false;
 
     // Remove listeners
     document.removeEventListener('mousemove', handleDragMove);
@@ -97,50 +100,72 @@ const GameBoard = ({ imageUrl, rows, cols, onComplete }) => {
   const unplacedPieces = getUnplacedPieces(puzzleData.pieces);
   const validation = validatePuzzle(puzzleData.pieces);
 
+  // Use pieceSize from props or default to responsive calculation
+  const trayPieceSize = pieceSize || 60;
+
   return (
     <div className="game-board">
-      <div className="game-board__grid-container">
-        <PuzzleGrid
-          rows={rows}
-          cols={cols}
-          pieces={puzzleData.pieces}
-          onPieceDragStart={handlePieceDragStart}
-          draggedPieceId={draggedPiece?.id}
-        />
-      </div>
-
-      <div className="game-board__pieces-tray">
-        <div className="pieces-tray__container">
-          {unplacedPieces.map(piece => (
-            <PuzzlePiece
-              key={piece.id}
-              piece={piece}
-              size={60}
-              isDragging={draggedPiece?.id === piece.id}
-              onDragStart={handlePieceDragStart}
-            />
-          ))}
+      <div className="game-board__content">
+        {/* Left tray for unplaced pieces */}
+        <div className="game-board__side-tray game-board__side-tray--left">
+          <div className="pieces-tray__container">
+            {unplacedPieces.slice(0, Math.ceil(unplacedPieces.length / 2)).map(piece => (
+              <PuzzlePiece
+                key={piece.id}
+                piece={piece}
+                size={trayPieceSize}
+                isDragging={draggedPieceRef.current?.id === piece.id}
+                onDragStart={handlePieceDragStart}
+              />
+            ))}
+          </div>
         </div>
-        {unplacedPieces.length === 0 && validation.isComplete && (
-          <p className="pieces-tray__message">Puzzle Complete! 🎉</p>
-        )}
+
+        {/* Center grid */}
+        <div className="game-board__grid-container">
+          <PuzzleGrid
+            rows={rows}
+            cols={cols}
+            pieces={puzzleData.pieces}
+            onPieceDragStart={handlePieceDragStart}
+            draggedPieceId={draggedPieceRef.current?.id}
+          />
+          {unplacedPieces.length === 0 && validation.isComplete && (
+            <p className="game-board__complete-message">Puzzle Complete! 🎉</p>
+          )}
+        </div>
+
+        {/* Right tray for remaining unplaced pieces */}
+        <div className="game-board__side-tray game-board__side-tray--right">
+          <div className="pieces-tray__container">
+            {unplacedPieces.slice(Math.ceil(unplacedPieces.length / 2)).map(piece => (
+              <PuzzlePiece
+                key={piece.id}
+                piece={piece}
+                size={trayPieceSize}
+                isDragging={draggedPieceRef.current?.id === piece.id}
+                onDragStart={handlePieceDragStart}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Floating dragged piece */}
-      {isDragging && draggedPiece && (
+      {isDraggingRef.current && draggedPieceRef.current && (
         <div
           className="game-board__floating-piece"
           style={{
             position: 'fixed',
-            left: dragPosition.x - 30,
-            top: dragPosition.y - 30,
+            left: dragPosition.x - trayPieceSize / 2,
+            top: dragPosition.y - trayPieceSize / 2,
             zIndex: 1000,
             pointerEvents: 'none',
           }}
         >
           <PuzzlePiece
-            piece={draggedPiece}
-            size={60}
+            piece={draggedPieceRef.current}
+            size={trayPieceSize}
             isDragging={true}
           />
         </div>

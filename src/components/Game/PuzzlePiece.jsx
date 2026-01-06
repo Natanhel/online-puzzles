@@ -19,7 +19,7 @@ const PuzzlePiece = memo(({
   const { imageData, isPlaced, isCorrect } = piece;
 
   const handleStart = (e) => {
-    if (isPlaced) return; // Can't drag pieces that are already placed
+    // Allow dragging all pieces - both from tray and from board
     if (onDragStart) {
       onDragStart(e, piece);
     }
@@ -31,7 +31,7 @@ const PuzzlePiece = memo(({
     backgroundImage: `url(${imageData.imageUrl})`,
     backgroundSize: imageData.backgroundSize,
     backgroundPosition: imageData.backgroundPosition,
-    cursor: isPlaced ? 'default' : 'grab',
+    cursor: 'grab',
     opacity: isDragging ? 0.3 : 1,
     transform: isDragging ? 'scale(1.05)' : 'scale(1)',
   };

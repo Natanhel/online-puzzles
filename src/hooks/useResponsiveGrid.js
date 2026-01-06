@@ -23,15 +23,15 @@ export function useResponsiveGrid(rows, cols) {
 
     // Reserve space for UI elements
     // - Top area: progress bar and title (~120px)
-    // - Bottom area: unplaced pieces tray (~200px)
+    // - Side trays: left and right (~15% each = 30% total)
     // - Padding: 20px on each side
     const topReserved = 120;
-    const bottomReserved = 200;
+    const sideTraysPercent = 0.35; // 35% total for both side trays plus gaps
     const padding = 20;
 
-    // Available space for the grid
-    const availableWidth = viewportWidth - (padding * 2);
-    const availableHeight = viewportHeight - topReserved - bottomReserved - (padding * 2);
+    // Available space for the grid (70% of width for center grid)
+    const availableWidth = (viewportWidth * (1 - sideTraysPercent)) - (padding * 2);
+    const availableHeight = viewportHeight - topReserved - (padding * 2);
 
     // Calculate piece size based on grid
     const pieceWidth = availableWidth / cols;
